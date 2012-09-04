@@ -5,11 +5,13 @@ using System.Text;
 
 namespace ASMCellSim
 {
-    class Program
+    internal class Program
     {
-        static void Main( string[] args )
+        internal static void Main( string[] args )
         {
-            Console.WriteLine( "Hello! World?" );
+            byte num = 0;
+            --num;
+            Console.WriteLine( "-1: " + num );
             Console.ReadKey();
         }
     }
