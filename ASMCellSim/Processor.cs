@@ -92,10 +92,10 @@ namespace ASMCellSim
             return myStackMemory[ mySP ];
         }
 
-        internal byte Peek()
+        internal byte Peek( int offset )
         {
-            if ( mySP > 1 )
-                return myStackMemory[ mySP - 1 ];
+            if ( mySP > ( offset + 1 ) )
+                return myStackMemory[ mySP - ( offset + 1 ) ];
             else
                 return 0x00;
         }
