@@ -90,13 +90,7 @@ namespace ASMCellSim
         internal byte Pop()
         {
             --mySP;
-            if ( mySP == 255 )
-            {
-                mySP = 0;
-                return 0x00;
-            }
-
-            if ( mySP < mySM )
+            if ( mySP == 255 || mySP < mySM )
             {
                 mySP = mySM;
                 return 0x00;
