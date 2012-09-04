@@ -15,201 +15,251 @@ namespace ASMCellSim
         {
             byte i = 1;
 
+            // PUSH {literal}
             Register( "PUSH", i, i++, cell =>
             {
-                byte val = cell.Processor.ReadByte();
-                cell.Processor.Push( val );
-                cell.UseEnergy( 1 );
+                cell.Processor.Push( cell.Processor.ReadByte() );
             } );
 
+            // POP
             Register( "POP", i, i++, cell =>
             {
                 cell.Processor.Pop();
             } );
 
+            // PEEK
+            Register( "PEEK", i, i++, cell =>
+            {
+                cell.Processor.Push( cell.Processor.Peek( 0x00 ) );
+            } );
+
+            // COPY offset
             Register( "COPY", i, i++, cell =>
             {
-                cell.Processor.Push( cell.Processor.Peek() );
+                cell.Processor.Push( cell.Processor.Peek( cell.Processor.Pop() ) );
             } );
 
-            Register( "LSTORE", i, i++, cell =>
+            // LLOD index
+            Register( "LLOD", i, i++, cell =>
             {
-                byte index = cell.Processor.Pop();
-                cell.Processor.LocalStore( index, cell.Processor.Pop() );
-                cell.UseEnergy( 1 );
+                cell.Processor.Push( cell.Processor.LocalLoad( cell.Processor.Pop() ) );
             } );
 
-            Register( "LLOAD", i, i++, cell =>
+            // LSTO index val
+            Register( "LSTO", i, i++, cell =>
             {
-                byte index = cell.Processor.Pop();
-                cell.Processor.Push( cell.Processor.LocalLoad( index ) );
-                cell.UseEnergy( 1 );
+                cell.Processor.LocalStore( cell.Processor.Pop(), cell.Processor.Pop() );
             } );
 
-            Register( "RSTORE", i, i++, cell =>
+            // RLOD pindex index
+            Register( "RLOD", i, i++, cell =>
             {
-                byte index = cell.Processor.Pop();
-                cell.Processor.LocalStore( index, cell.Processor.Pop() );
-                cell.UseEnergy( 1 );
+                cell.Processor.Push( cell.Processor.RemoteLoad( cell.Processor.Pop(), cell.Processor.Pop() ) );
             } );
 
-            Register( "RLOAD", i, i++, cell =>
+            // RSTO pindex index val
+            Register( "RSTO", i, i++, cell =>
             {
-                byte index = cell.Processor.Pop();
-                cell.Processor.Push( cell.Processor.LocalLoad( index ) );
-                cell.UseEnergy( 1 );
+                cell.Processor.RemoteStore( cell.Processor.Pop(), cell.Processor.Pop(), cell.Processor.Pop() );
             } );
 
+            // JUMP index
             Register( "JUMP", i, i++, cell =>
             {
-                byte index = cell.Processor.Pop();
-                cell.Processor.Jump( index );
-                cell.UseEnergy( 1 );
+                cell.Processor.Jump( cell.Processor.Pop() );
             } );
 
-            Register( "JIF", i, i++, cell =>
+            // JPIF val index
+            Register( "JPIF", i, i++, cell =>
             {
-                byte index = cell.Processor.Pop();
-                byte val = cell.Processor.Pop();
-                if ( val != 0x00 )
-                {
-                    cell.Processor.Jump( index );
-                    cell.UseEnergy( 2 );
-                }
+                if ( cell.Processor.Pop() != 0x00 )
+                    cell.Processor.Jump( cell.Processor.Pop() );
                 else
-                    cell.UseEnergy( 1 );
+                    cell.Processor.Pop();
             } );
 
+            // CALL pindex
             Register( "CALL", i, i++, cell =>
             {
-                byte index = cell.Processor.Pop();
-                cell.Processor.Call( index );
-                cell.UseEnergy( 2 );
+                cell.Processor.Call( cell.Processor.Pop() );
             } );
 
-            Register( "RET", i, i++, cell =>
+            // RTN
+            Register( "RTN", i, i++, cell =>
             {
                 cell.Processor.Return();
-                cell.UseEnergy( 2 );
             } );
 
+            // SLP ticks
+            Register( "SLP", i, i++, cell =>
+            {
+                // not implemented
+            } );
+
+            // INC val
+            Register( "INC", i, i++, cell =>
+            {
+                cell.Processor.Push( (byte) ( cell.Processor.Pop() + 1 ) );
+            } );
+
+            // DEC val
+            Register( "DEC", i, i++, cell =>
+            {
+                cell.Processor.Push( (byte) ( cell.Processor.Pop() - 1 ) );
+            } );
+
+            // AND a b
             Register( "AND", i, i++, cell =>
             {
-                byte valB = cell.Processor.Pop();
-                byte valA = cell.Processor.Pop();
-                cell.Processor.Push( (byte) ( valA & valB ) );
-                cell.UseEnergy( 1 );
+                cell.Processor.Push( (byte) ( cell.Processor.Pop() & cell.Processor.Pop() ) );
             } );
 
+            // OR a b
             Register( "OR", i, i++, cell =>
             {
-                byte valB = cell.Processor.Pop();
-                byte valA = cell.Processor.Pop();
-                cell.Processor.Push( (byte) ( valA | valB ) );
-                cell.UseEnergy( 1 );
+                cell.Processor.Push( (byte) ( cell.Processor.Pop() | cell.Processor.Pop() ) );
             } );
 
+            // XOR a b
             Register( "XOR", i, i++, cell =>
             {
-                byte valB = cell.Processor.Pop();
-                byte valA = cell.Processor.Pop();
-                cell.Processor.Push( (byte) ( valA ^ valB ) );
-                cell.UseEnergy( 1 );
+                cell.Processor.Push( (byte) ( cell.Processor.Pop() ^ cell.Processor.Pop() ) );
             } );
 
+            // NOT val
             Register( "NOT", i, i++, cell =>
             {
-                byte val = cell.Processor.Pop();
-                cell.Processor.Push( (byte) ( ~val ) );
-                cell.UseEnergy( 1 );
+                cell.Processor.Push( (byte) ~cell.Processor.Pop() );
             } );
 
+            // ADD a b
             Register( "ADD", i, i++, cell =>
             {
-                byte valB = cell.Processor.Pop();
-                byte valA = cell.Processor.Pop();
-                cell.Processor.Push( (byte) ( valA + valB ) );
-                cell.UseEnergy( 2 );
+                cell.Processor.Push( (byte) ( cell.Processor.Pop() + cell.Processor.Pop() ) );
             } );
 
+            // SUB a b
             Register( "SUB", i, i++, cell =>
             {
-                byte valB = cell.Processor.Pop();
-                byte valA = cell.Processor.Pop();
-                cell.Processor.Push( (byte) ( valA - valB ) );
-                cell.UseEnergy( 2 );
+                cell.Processor.Push( (byte) ( cell.Processor.Pop() - cell.Processor.Pop() ) );
             } );
 
+            // MUL a b
             Register( "MUL", i, i++, cell =>
             {
-                byte valB = cell.Processor.Pop();
-                byte valA = cell.Processor.Pop();
-                cell.Processor.Push( (byte) ( valA * valB ) );
-                cell.UseEnergy( 4 );
+                cell.Processor.Push( (byte) ( cell.Processor.Pop() * cell.Processor.Pop() ) );
             } );
 
+            // DIV a b
             Register( "DIV", i, i++, cell =>
             {
-                byte valB = cell.Processor.Pop();
-                byte valA = cell.Processor.Pop();
-                cell.Processor.Push( (byte) ( valA / valB ) );
-                cell.UseEnergy( 4 );
+                cell.Processor.Push( (byte) ( cell.Processor.Pop() / cell.Processor.Pop() ) );
             } );
 
-            Register( "SHIFTL", i, i++, cell =>
+            // LSFT val n
+            Register( "LSFT", i, i++, cell =>
             {
-                byte valB = cell.Processor.Pop();
-                byte valA = cell.Processor.Pop();
-                cell.Processor.Push( (byte) ( valA << valB ) );
-                cell.UseEnergy( 1 );
+                cell.Processor.Push( (byte) ( cell.Processor.Pop() << ( cell.Processor.Pop() & 0x7 ) ) );
             } );
 
-            Register( "LOOPL", i, i++, cell =>
+            // LLOP val n
+            Register( "LLOP", i, i++, cell =>
             {
-                byte valB = cell.Processor.Pop();
-                byte valA = cell.Processor.Pop();
-                cell.Processor.Push( (byte) ( valA << ( valB & 0x7 ) | valA >> ( 8 - ( valB & 0x7 ) ) ) );
-                cell.UseEnergy( 2 );
+                byte val = cell.Processor.Pop();
+                byte n = cell.Processor.Pop();
+                cell.Processor.Push( (byte) ( val << ( n & 0x7 ) | val >> ( 8 - ( n & 0x7 ) ) ) );
             } );
 
-            Register( "SHIFTR", i, i++, cell =>
+            // RSFT val n
+            Register( "RSFT", i, i++, cell =>
             {
-                byte valB = cell.Processor.Pop();
-                byte valA = cell.Processor.Pop();
-                cell.Processor.Push( (byte) ( valA >> valB ) );
-                cell.UseEnergy( 1 );
+                cell.Processor.Push( (byte) ( cell.Processor.Pop() >> ( cell.Processor.Pop() & 0x7 ) ) );
             } );
 
-            Register( "LOOPR", i, i++, cell =>
+            // RLOP val n
+            Register( "RLOP", i, i++, cell =>
             {
-                byte valB = cell.Processor.Pop();
-                byte valA = cell.Processor.Pop();
-                cell.Processor.Push( (byte) ( valA >> ( valB & 0x7 ) | valA << ( 8 - ( valB & 0x7 ) ) ) );
-                cell.UseEnergy( 2 );
+                byte val = cell.Processor.Pop();
+                byte n = cell.Processor.Pop();
+                cell.Processor.Push( (byte) ( val >> ( n & 0x7 ) | val << ( 8 - ( n & 0x7 ) ) ) );
             } );
 
-            Register( "EQUAL", i, i++, cell =>
+            // EQUL a b
+            Register( "EQUL", i, i++, cell =>
             {
-                byte valB = cell.Processor.Pop();
-                byte valA = cell.Processor.Pop();
-                cell.Processor.Push( (byte) ( valA == valB ? 0x01 : 0x00 ) );
-                cell.UseEnergy( 1 );
+                cell.Processor.Push( (byte) ( cell.Processor.Pop() == cell.Processor.Pop() ? 0x01 : 0x00 ) );
             } );
 
-            Register( "GREATER", i, i++, cell =>
+            // GRT a b
+            Register( "GRT", i, i++, cell =>
             {
-                byte valB = cell.Processor.Pop();
-                byte valA = cell.Processor.Pop();
-                cell.Processor.Push( (byte) ( valA > valB ? 0x01 : 0x00 ) );
-                cell.UseEnergy( 1 );
+                cell.Processor.Push( (byte) ( cell.Processor.Pop() > cell.Processor.Pop() ? 0x01 : 0x00 ) );
             } );
 
-            Register( "GORE", i, i++, cell =>
+            // LST a b
+            Register( "LST", i, i++, cell =>
             {
-                byte valB = cell.Processor.Pop();
-                byte valA = cell.Processor.Pop();
-                cell.Processor.Push( (byte) ( valA >= valB ? 0x01 : 0x00 ) );
-                cell.UseEnergy( 1 );
+                cell.Processor.Push( (byte) ( cell.Processor.Pop() < cell.Processor.Pop() ? 0x01 : 0x00 ) );
+            } );
+
+            // ECHK
+            Register( "ECHK", i, i++, cell =>
+            {
+                cell.Processor.Push( (byte) ( cell.Energy >> 8 ) );
+            } );
+
+            // EGIV hectant amount
+            Register( "EGIV", i, i++, cell =>
+            {
+                // not implemented
+            } );
+
+            // SCAN hectant
+            Register( "SCAN", i, i++, cell =>
+            {
+                // not implemented
+            } );
+
+            // JET hectant power
+            Register( "JET", i, i++, cell =>
+            {
+                // not implemented
+            } );
+
+            // LCHK hectant
+            Register( "LCHK", i, i++, cell =>
+            {
+                // not implemented
+            } );
+
+            // LINK hectant
+            Register( "LINK", i, i++, cell =>
+            {
+                // not implemented
+            } );
+
+            // MCHK hectant
+            Register( "MCHK", i, i++, cell =>
+            {
+                // not implemented
+            } );
+
+            // MGET hectant
+            Register( "MGET", i, i++, cell =>
+            {
+                // not implemented
+            } );
+
+            // MSND hectant message
+            Register( "MSND", i, i++, cell =>
+            {
+                // not implemented
+            } );
+
+            // DUP hectant
+            Register( "DUP", i, i++, cell =>
+            {
+                // not implemented
             } );
         }
 

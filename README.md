@@ -6,8 +6,9 @@ Today, I shall be God.
 Instruction Mnemonics
 ---------------------
 
-    POP                     - Discard top of stack
 	PUSH {val}              - Push literal
+    POP                     - Discard top of stack
+	PEEK                    - Push a copy of item at top of stack
 	COPY offset             - Push item in stack offset from the top
 	
 	LLOD index		        - Push value from index in current block
@@ -22,8 +23,30 @@ Instruction Mnemonics
 	
 	SLP  ticks              - Idle for given number of ticks
 	
+	INC  a                  - Push a+1
+	DEC  a                  - Push a-1
+	
+	AND  a b                - Push a&b
+	OR   a b                - Push a|b
+	XOR  a b                - Push a^b
+	NOT  a                  - Push ~a
+	
+	ADD  a b                - Push a+b
+	SUB  a b                - Push a-b
+	MUL  a b                - Push a*b
+	DIV  a b                - Push a/b
+	
+	LSFT a b                - Push a<<b
+	LLOP a b                - Push a<<b|a>>(8-b)
+	RSFT a b                - Push a>>b
+	RLOP a b                - Push a>>b|a<<(8-b)
+	
+	EQUL a b                - Push 0x01 if a==b, else 0x00
+	GRT  a b                - Push 0x01 if a>b, else 0x00
+	LST  a b                - Push 0x01 if a<b, else 0x00
+	
 	ECHK                    - Push most signif. byte of energy stored
-	EGIV hectant value      - Give given value of energy to hectant
+	EGIV hectant amount     - Give given amount of energy to hectant
 	
 	SCAN hectant            - Push trace result from scan at hectant
 	JET  hectant power      - Fire a jet from hectant with given power
