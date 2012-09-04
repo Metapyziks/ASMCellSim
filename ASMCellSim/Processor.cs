@@ -14,6 +14,7 @@ namespace ASMCellSim
         private byte myPI;
         private byte myPC;
         private byte mySP;
+        private byte mySM;
 
         private bool myPCOverflow;
 
@@ -38,7 +39,9 @@ namespace ASMCellSim
 
             myPCOverflow = true;
 
+            myStackMemory = new byte[ StackSize ];
             mySP = 0;
+            mySM = 0;
         }
 
         internal byte ReadByte()
@@ -64,6 +67,8 @@ namespace ASMCellSim
         {
             Push( myPC );
             Push( myPI );
+            Push( mySM );
+            mySM = mySP;
 
             myPI = programIndex;
             Jump( 0 );
@@ -71,6 +76,8 @@ namespace ASMCellSim
 
         internal void Return()
         {
+            mySP = mySM;
+            mySM = Pop();
             myPI = Pop();
             Jump( Pop() );
         }
@@ -89,12 +96,18 @@ namespace ASMCellSim
                 return 0x00;
             }
 
+            if ( mySP < mySM )
+            {
+                mySP = mySM;
+                return 0x00;
+            }
+
             return myStackMemory[ mySP ];
         }
 
         internal byte Peek( int offset )
         {
-            if ( mySP > ( offset + 1 ) )
+            if ( mySP > offset + 1 )
                 return myStackMemory[ mySP - ( offset + 1 ) ];
             else
                 return 0x00;
