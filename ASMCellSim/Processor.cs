@@ -7,87 +7,123 @@ namespace ASMCellSim
 {
     internal class Processor
     {
-        internal const int MemorySize = 256;
+        internal const int StackSize = 256;
 
-        internal List<byte[]> Code { get; private set; }
-        internal byte[] Memory { get; private set; }
+        private byte[] myStackMemory;
 
-        internal byte PI { get; private set; }
-        internal byte PC { get; private set; }
-        internal byte SP { get; private set; }
+        private byte myPI;
+        private byte myPC;
+        private byte mySP;
+
+        private bool myPCOverflow;
+
+        internal byte[][] Memory { get; private set; }
 
         internal byte[] CurrentProgram
         {
-            get { return Code[ PI ]; }
+            get { return Memory[ myPI ]; }
         }
 
         internal bool EndOfProgram
         {
-            get { return PI >= Code.Count || PC >= CurrentProgram.Length; }
+            get { return CurrentProgram == null || myPCOverflow; }
         }
 
         internal Processor()
         {
-            Code = new List<byte[]>();
-            Memory = new byte[ MemorySize ];
+            Memory = new byte[ 256 ][];
 
-            PI = 0;
-            PC = 0;
+            myPI = 0;
+            myPC = 0;
 
-            SP = MemorySize - 1;
+            myPCOverflow = true;
+
+            mySP = 0;
         }
 
         internal byte ReadByte()
         {
             if ( !EndOfProgram )
-                return CurrentProgram[ PC++ ];
+            {
+                if ( myPC == 255 )
+                    myPCOverflow = true;
+
+                return CurrentProgram[ myPC++ ];
+            }
 
             return 0x00;
         }
 
         internal void Jump( byte index )
         {
-            PC = index;
+            myPC = index;
+            myPCOverflow = false;
         }
 
         internal void Call( byte programIndex )
         {
-            Push( PC );
-            Push( PI );
+            Push( myPC );
+            Push( myPI );
 
-            PI = programIndex;
-            PC = 0;
+            myPI = programIndex;
+            Jump( 0 );
         }
 
         internal void Return()
         {
-            PI = Pop();
-            PC = Pop();
+            myPI = Pop();
+            Jump( Pop() );
         }
 
         internal void Push( byte value )
         {
-            Memory[ SP-- ] = value;
+            myStackMemory[ mySP++ ] = value;
         }
 
         internal byte Pop()
         {
-            return Memory[ ++SP ];
+            --mySP;
+            if ( mySP == 255 )
+            {
+                mySP = 0;
+                return 0x00;
+            }
+
+            return myStackMemory[ mySP ];
         }
 
         internal byte Peek()
         {
-            return Memory[ SP + 1 ];
+            if ( mySP > 1 )
+                return myStackMemory[ mySP - 1 ];
+            else
+                return 0x00;
         }
 
-        internal void Store( byte index, byte value )
+        internal void LocalStore( byte index, byte value )
         {
-            Memory[ index % MemorySize ] = value;
+            RemoteStore( myPI, index, value );
         }
 
-        internal byte Load( byte index )
+        internal byte LocalLoad( byte index )
         {
-            return Memory[ index % MemorySize ];
+            return RemoteLoad( myPI, index );
+        }
+
+        internal void RemoteStore( byte pindex, byte index, byte value )
+        {
+            if ( Memory[ pindex ] == null )
+                Memory[ pindex ] = new byte[ 256 ];
+
+            Memory[ pindex ][ index ] = value;
+        }
+
+        internal byte RemoteLoad( byte pindex, byte index )
+        {
+            if ( Memory[ pindex ] == null )
+                return 0x00;
+
+            return Memory[ pindex ][ index ];
         }
 
         internal void Step( Cell cell )

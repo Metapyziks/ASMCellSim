@@ -22,18 +22,75 @@ namespace ASMCellSim
                 cell.UseEnergy( 1 );
             } );
 
-            Register( "STORE", i, i++, cell =>
+            Register( "POP", i, i++, cell =>
+            {
+                cell.Processor.Pop();
+            } );
+
+            Register( "COPY", i, i++, cell =>
+            {
+                cell.Processor.Push( cell.Processor.Peek() );
+            } );
+
+            Register( "LSTORE", i, i++, cell =>
             {
                 byte index = cell.Processor.Pop();
-                cell.Processor.Store( index, cell.Processor.Pop() );
+                cell.Processor.LocalStore( index, cell.Processor.Pop() );
                 cell.UseEnergy( 1 );
             } );
 
-            Register( "LOAD", i, i++, cell =>
+            Register( "LLOAD", i, i++, cell =>
             {
                 byte index = cell.Processor.Pop();
-                cell.Processor.Push( cell.Processor.Load( index ) );
+                cell.Processor.Push( cell.Processor.LocalLoad( index ) );
                 cell.UseEnergy( 1 );
+            } );
+
+            Register( "RSTORE", i, i++, cell =>
+            {
+                byte index = cell.Processor.Pop();
+                cell.Processor.LocalStore( index, cell.Processor.Pop() );
+                cell.UseEnergy( 1 );
+            } );
+
+            Register( "RLOAD", i, i++, cell =>
+            {
+                byte index = cell.Processor.Pop();
+                cell.Processor.Push( cell.Processor.LocalLoad( index ) );
+                cell.UseEnergy( 1 );
+            } );
+
+            Register( "JUMP", i, i++, cell =>
+            {
+                byte index = cell.Processor.Pop();
+                cell.Processor.Jump( index );
+                cell.UseEnergy( 1 );
+            } );
+
+            Register( "JIF", i, i++, cell =>
+            {
+                byte index = cell.Processor.Pop();
+                byte val = cell.Processor.Pop();
+                if ( val != 0x00 )
+                {
+                    cell.Processor.Jump( index );
+                    cell.UseEnergy( 2 );
+                }
+                else
+                    cell.UseEnergy( 1 );
+            } );
+
+            Register( "CALL", i, i++, cell =>
+            {
+                byte index = cell.Processor.Pop();
+                cell.Processor.Call( index );
+                cell.UseEnergy( 2 );
+            } );
+
+            Register( "RET", i, i++, cell =>
+            {
+                cell.Processor.Return();
+                cell.UseEnergy( 2 );
             } );
 
             Register( "AND", i, i++, cell =>
@@ -153,55 +210,6 @@ namespace ASMCellSim
                 byte valA = cell.Processor.Pop();
                 cell.Processor.Push( (byte) ( valA >= valB ? 0x01 : 0x00 ) );
                 cell.UseEnergy( 1 );
-            } );
-
-            Register( "LESS", i, i++, cell =>
-            {
-                byte valB = cell.Processor.Pop();
-                byte valA = cell.Processor.Pop();
-                cell.Processor.Push( (byte) ( valA < valB ? 0x01 : 0x00 ) );
-                cell.UseEnergy( 1 );
-            } );
-
-            Register( "LORE", i, i++, cell =>
-            {
-                byte valB = cell.Processor.Pop();
-                byte valA = cell.Processor.Pop();
-                cell.Processor.Push( (byte) ( valA <= valB ? 0x01 : 0x00 ) );
-                cell.UseEnergy( 1 );
-            } );
-
-            Register( "JUMP", i, i++, cell =>
-            {
-                byte index = cell.Processor.Pop();
-                cell.Processor.Jump( index );
-                cell.UseEnergy( 1 );
-            } );
-
-            Register( "JIF", i, i++, cell =>
-            {
-                byte index = cell.Processor.Pop();
-                byte val = cell.Processor.Pop();
-                if ( val != 0x00 )
-                {
-                    cell.Processor.Jump( index );
-                    cell.UseEnergy( 2 );
-                }
-                else
-                    cell.UseEnergy( 1 );
-            } );
-
-            Register( "CALL", i, i++, cell =>
-            {
-                byte index = cell.Processor.Pop();
-                cell.Processor.Call( index );
-                cell.UseEnergy( 2 );
-            } );
-
-            Register( "RETURN", i, i++, cell =>
-            {
-                cell.Processor.Return();
-                cell.UseEnergy( 2 );
             } );
         }
 
