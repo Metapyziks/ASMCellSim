@@ -1,0 +1,6 @@
+.prg $00 Test
+	ADD $03 $08
+	POP
+	MUL ADD $03 $08 $02
+	POP
+	RTN

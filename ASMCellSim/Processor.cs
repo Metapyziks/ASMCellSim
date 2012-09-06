@@ -133,14 +133,23 @@ namespace ASMCellSim
             return Memory[ pindex ][ index ];
         }
 
+        private static byte[] stArgs = new byte[ 4 ];
         internal void Step( Cell cell )
         {
             if ( !EndOfProgram )
             {
                 byte instID = ReadByte();
                 Instruction inst = Instruction.Get( instID );
+                byte argFlags = (byte) ( instID - inst.InstructionID );
+                for ( int i = 0; i < inst.ArgCount; ++i )
+                {
+                    if ( ( ( argFlags >> i ) & 0x1 ) != 0 )
+                        stArgs[ i ] = ReadByte();
+                    else
+                        stArgs[ i ] = Pop();
+                }
                 if ( inst != null )
-                    inst.Action( cell );
+                    inst.Action( cell, stArgs );
 
                 if ( EndOfProgram )
                     Return();
