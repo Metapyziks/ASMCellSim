@@ -1,27 +1,27 @@
 .prg $00 Loader
-	JPIF original NOT EQUL $07 LCHK $20           ; if(!(0x07==linkCheck(0x20))) goto original;
+    JPIF @original NOT EQUL $07 LCHK $20          ; if(!(0x07==linkCheck(0x20))) goto original;
 :wait_loop
-	JPIF wait_loop EQUL $01 MCHK $20              ; if(0x01==msgCheck(0x20)) goto wait_loop;
-	$00                                           ; [0]=0x00;
-		$00                                       ; [1]=0x00;
+    JPIF @wait_loop EQUL $01 MCHK $20             ; if(0x01==msgCheck(0x20)) goto wait_loop;
+    PUSH $00                                      ; [0]=0x00;
+        PUSH $00                                  ; [1]=0x00;
 :copy_prog
-		POP                                       ; [1]=nil;
-	POP                                           ; [0]=nil;
-	MGET $20                                      ; [0]=msgGet(0x20);
-		JPIF copy_end EQUL $00 COPY $01           ; if(0x00==[0]) goto copy_end;
-		$00                                       ; [1]=0x00;
+        POP                                       ; [1]=nil;
+    POP                                           ; [0]=nil;
+    MGET $20                                      ; [0]=msgGet(0x20);
+        JPIF @copy_end EQUL $00 COPY $01          ; if(0x00==[0]) goto copy_end;
+        PUSH $00                                  ; [1]=0x00;
 :copy_loop
-			RSTO COPY $03 COPY $01 MGET $20       ; remoteStore([0],[1],msgGet(0x20));
-			INC                                   ; ++[1]
-			JPIF copy_prog EQUL $00 COPY $01      ; if(0x00==[1]) goto copy_prog;
-			JUMP copy_loop                        ; goto copy_loop;
+            RSTO COPY $03 COPY $01 MGET $20       ; remoteStore([0],[1],msgGet(0x20));
+            INC                                   ; ++[1]
+            JPIF @copy_prog EQUL $00 COPY $01     ; if(0x00==[1]) goto copy_prog;
+            JUMP @copy_loop                       ; goto copy_loop;
 :copy_end
-	POP                                           ; [1]=nil;
-	RTN CALL MGET $20                             ; return msgGet(0x20)();
+    POP                                           ; [1]=nil;
+    RTN CALL MGET $20                             ; return msgGet(0x20)();
 :original
-	RTN CALL Original                             ; return Original();
+    RTN CALL @Original                            ; return Original();
 
 .prg $01 Original
 :wait_loop
-	SLP $ff
-	JUMP wait_loop
+    SLP $ff
+    JUMP @wait_loop

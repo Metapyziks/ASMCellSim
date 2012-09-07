@@ -10,10 +10,17 @@ namespace ASMCellSim
     internal class Instruction
     {
         private static List<Instruction> stToAdd = new List<Instruction>();
-        private static Instruction[] stDictionary = new Instruction[ 256 ];
+        private static Instruction[] stInstCodes = new Instruction[ 256 ];
+        private static Dictionary<String, Instruction> stMnemonics = new Dictionary<string, Instruction>();
 
         static Instruction()
         {
+            // RTN
+            Register( "RTN", 0, ( cell, args ) =>
+            {
+                cell.Processor.Return();
+            } );
+
             // PUSH value
             Register( "PUSH", 1, ( cell, args ) =>
             {
@@ -79,12 +86,6 @@ namespace ASMCellSim
             Register( "CALL", 1, ( cell, args ) =>
             {
                 cell.Processor.Call( args[ 0 ] );
-            } );
-
-            // RTN
-            Register( "RTN", 0, ( cell, args ) =>
-            {
-                cell.Processor.Return();
             } );
 
             // SLP ticks
@@ -261,7 +262,9 @@ namespace ASMCellSim
         private static void Register( String mnemonic, byte argCount,
             InstructionAction action )
         {
-            stToAdd.Add( new Instruction( mnemonic, argCount, action ) );
+            Instruction inst = new Instruction( mnemonic, argCount, action );
+            stToAdd.Add( inst );
+            stMnemonics.Add( mnemonic, inst );
         }
 
         private static void OrganiseInstructions()
@@ -280,15 +283,25 @@ namespace ASMCellSim
             foreach ( Instruction inst in stToAdd )
             {
                 for ( int j = 0; j < 1 << inst.ArgCount; ++j, ++i )
-                    stDictionary[ i ] = inst;
+                    stInstCodes[ i ] = inst;
             }
 
             stToAdd.Clear();
         }
 
+        internal static bool Exists( String mnemonic )
+        {
+            return stMnemonics.ContainsKey( mnemonic );
+        }
+
         internal static Instruction Get( byte id )
         {
-            return stDictionary[ id ];
+            return stInstCodes[ id ];
+        }
+
+        internal static Instruction Get( String mnemonic )
+        {
+            return stMnemonics[ mnemonic ];
         }
 
         internal readonly String Mnemonic;
@@ -304,6 +317,11 @@ namespace ASMCellSim
             Action = action;
 
             InstructionID = 0x00;
+        }
+
+        public override string ToString()
+        {
+            return Mnemonic;
         }
     }
 }
