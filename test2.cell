@@ -6,7 +6,8 @@
 	POP CALL @Print PUSH @reply
 	OUTC $0a
 	RTN
-	
+
+.org $80
 :greet
 .str "Hello World!"
 :query

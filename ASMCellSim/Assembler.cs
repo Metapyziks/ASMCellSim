@@ -181,6 +181,13 @@ namespace ASMCellSim
                             for ( int i = 1; i < split.Length; ++i )
                                 curProgram.Add( new LiteralToken( split[ i ] ) );
                         }
+                        else if ( split[ 0 ] == ".org" )
+                        {
+                            int index = new LiteralToken( split[ 1 ] ).Value;
+
+                            while ( curProgram.Count < index )
+                                curProgram.Add( new LiteralToken( 0x00 ) );
+                        }
                         else if ( split[ 0 ] == ".str" )
                         {
                             int start = line.IndexOf( '"' ) + 1;
