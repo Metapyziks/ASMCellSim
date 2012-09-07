@@ -23,8 +23,8 @@ Instruction Mnemonics
 	
 	SLP  ticks              - Idle for given number of ticks
 	
-	INC  a                  - Push a+1
-	DEC  a                  - Push a-1
+	INC a                   - Push a+1
+	DEC a                   - Push a-1
 	
 	AND  a b                - Push a&b
 	OR   a b                - Push a|b

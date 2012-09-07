@@ -78,8 +78,8 @@ namespace ASMCellSim
             // JPIF val index
             Register( "JPIF", 2, ( cell, args ) =>
             {
-                if ( args[ 0 ] != 0x00 )
-                    cell.Processor.Jump( args[ 1 ] );
+                if ( args[ 1 ] != 0x00 )
+                    cell.Processor.Jump( args[ 0 ] );
             } );
 
             // CALL pindex
@@ -94,13 +94,13 @@ namespace ASMCellSim
                 // not implemented
             } );
 
-            // INC val
+            // INC a
             Register( "INC", 1, ( cell, args ) =>
             {
                 cell.Processor.Push( (byte) ( args[ 0 ] + 1 ) );
             } );
 
-            // DEC val
+            // DEC a
             Register( "DEC", 1, ( cell, args ) =>
             {
                 cell.Processor.Push( (byte) ( args[ 0 ] - 1 ) );
@@ -124,10 +124,16 @@ namespace ASMCellSim
                 cell.Processor.Push( (byte) ( args[ 0 ] ^ args[ 1 ] ) );
             } );
 
-            // NOT val
-            Register( "NOT", 2, ( cell, args ) =>
+            // NEG val
+            Register( "NEG", 1, ( cell, args ) =>
             {
                 cell.Processor.Push( (byte) ~args[ 0 ] );
+            } );
+
+            // NOT val
+            Register( "NOT", 1, ( cell, args ) =>
+            {
+                cell.Processor.Push( (byte) ( args[ 0 ] == 0x00 ? 0x01 : 0x00 ) );
             } );
 
             // ADD a b
@@ -254,6 +260,32 @@ namespace ASMCellSim
             Register( "DUP", 1, ( cell, args ) =>
             {
                 // not implemented
+            } );
+
+            // OUTB byte
+            Register( "OUTB", 1, ( cell, args ) =>
+            {
+                Console.Write( args[ 0 ].ToString( "X2" ).ToLower() + " " );
+            } );
+
+            // OUTC char
+            Register( "OUTC", 1, ( cell, args ) =>
+            {
+                Console.Write( (char) args[ 0 ] );
+            } );
+
+            // INPB
+            Register( "INPB", 0, ( cell, args ) =>
+            {
+                byte val;
+                while ( !byte.TryParse( Console.ReadLine(), out val ) ) ;
+                cell.Processor.Push( val );
+            } );
+
+            // INPC
+            Register( "INPC", 0, ( cell, args ) =>
+            {
+                cell.Processor.Push( (byte) Console.ReadKey().KeyChar );
             } );
 
             OrganiseInstructions();

@@ -44,6 +44,14 @@ namespace ASMCellSim
             mySM = 0;
         }
 
+        internal void LoadCode( byte[][] code )
+        {
+            Memory = code;
+            myPI = 0;
+            myPC = 0;
+            myPCOverflow = code[ 0 ] == null;
+        }
+
         internal byte ReadByte()
         {
             if ( !EndOfProgram )
@@ -76,10 +84,15 @@ namespace ASMCellSim
 
         internal void Return()
         {
-            mySP = mySM;
-            mySM = Pop();
-            myPI = Pop();
-            Jump( Pop() );
+            if ( mySM == 0 )
+                myPCOverflow = true;
+            else
+            {
+                mySP = mySM;
+                mySM = myStackMemory[ --mySP ];
+                myPI = Pop();
+                Jump( Pop() );
+            }
         }
 
         internal void Push( byte value )
@@ -101,8 +114,8 @@ namespace ASMCellSim
 
         internal byte Peek( int offset )
         {
-            if ( mySP > offset + 1 )
-                return myStackMemory[ mySP - ( offset + 1 ) ];
+            if ( mySP > offset )
+                return myStackMemory[ mySP - offset - 1 ];
             else
                 return 0x00;
         }
@@ -140,16 +153,19 @@ namespace ASMCellSim
             {
                 byte instID = ReadByte();
                 Instruction inst = Instruction.Get( instID );
-                byte argFlags = (byte) ( instID - inst.InstructionID );
-                for ( int i = 0; i < inst.ArgCount; ++i )
-                {
-                    if ( ( ( argFlags >> i ) & 0x1 ) != 0 )
-                        stArgs[ i ] = ReadByte();
-                    else
-                        stArgs[ i ] = Pop();
-                }
                 if ( inst != null )
+                {
+                    byte argFlags = (byte) ( instID - inst.InstructionID );
+                    for ( int i = 0; i < inst.ArgCount; ++i )
+                    {
+                        if ( ( ( argFlags >> i ) & 0x1 ) != 0 )
+                            stArgs[ i ] = ReadByte();
+                        else
+                            stArgs[ i ] = Pop();
+                    }
+
                     inst.Action( cell, stArgs );
+                }
 
                 if ( EndOfProgram )
                     Return();

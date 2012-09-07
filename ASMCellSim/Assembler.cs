@@ -15,7 +15,7 @@ namespace ASMCellSim
 
             internal virtual byte ArgumentCount { get { return 0; } }
 
-            internal abstract void ResolveValue( Token[] program, int index, Dictionary<String, byte> constants );
+            internal abstract void ResolveValue( List<Token> program, ref int index, Dictionary<String, byte> constants );
         }
 
         private class LiteralToken : Token
@@ -23,6 +23,11 @@ namespace ASMCellSim
             private String myConstName;
 
             internal override bool IsLiteral { get { return true; } }
+
+            internal LiteralToken( byte value )
+            {
+                Value = value;
+            }
 
             internal LiteralToken( String literal )
             {
@@ -53,7 +58,7 @@ namespace ASMCellSim
                     throw new Exception( "Invalid literal: " + literal );
             }
 
-            internal override void ResolveValue( Token[] program, int index, Dictionary<string, byte> constants )
+            internal override void ResolveValue( List<Token> program, ref int index, Dictionary<string, byte> constants )
             {
                 if ( myConstName != null )
                 {
@@ -66,6 +71,14 @@ namespace ASMCellSim
                         throw new Exception( "No value given for constant: " + myConstName );
                     }
                 }
+            }
+
+            public override string ToString()
+            {
+                if ( myConstName != null )
+                    return myConstName;
+                else
+                    return "0x" + Value.ToString( "X2" );
             }
         }
 
@@ -88,26 +101,42 @@ namespace ASMCellSim
                 }
             }
 
-            internal override void ResolveValue( Token[] program, int index, Dictionary<string, byte> constants )
+            internal override void ResolveValue( List<Token> program, ref int index, Dictionary<string, byte> constants )
             {
                 Value = Instruction.InstructionID;
 
                 byte variant = 0;
                 int i = index - 1;
+                int lits = 0;
                 for ( int a = 0; a < ArgumentCount; ++a )
                 {
                     if ( i < 0 )
                         break;
 
                     if ( program[ i ].IsLiteral )
+                    {
                         variant |= (byte) ( 1 << a );
-
-                    int s = 1;
-                    while ( s-- > 0 && i >= 0 )
-                        s += program[ i-- ].ArgumentCount;
+                        Token tok = program[ i ];
+                        program.RemoveAt( i-- );
+                        program.Insert( index, tok );
+                        tok.ResolveValue( program, ref index, constants );
+                        ++lits;
+                    }
+                    else
+                    {
+                        int s = 1;
+                        while ( s-- > 0 && i >= 0 )
+                            s += program[ i-- ].ArgumentCount;
+                    }
                 }
 
+                index -= lits;
                 Value += variant;
+            }
+
+            public override string ToString()
+            {
+                return Instruction.Mnemonic;
             }
         }
 
@@ -117,11 +146,11 @@ namespace ASMCellSim
 
             Dictionary<String, byte> constants = new Dictionary<string, byte>();
 
-            Token[][] programs = new Token[ 256 ][];
+            List<Token>[] programs = new List<Token>[ 256 ];
             Dictionary<String, byte>[] labels = new Dictionary<string, byte>[ 256 ];
             byte progIndex = 0x00;
-            List<Token> curProgram = new List<Token>();
-            Dictionary<String, byte> curLabels = new Dictionary<string, byte>();
+            List<Token> curProgram = null;
+            Dictionary<String, byte> curLabels = null;
 
             for( int l = 0; l < lines.Length; ++l )
             {
@@ -136,16 +165,32 @@ namespace ASMCellSim
                             if( split.Length < 2 )
                                 throw new Exception( "Invalid program declaration: " + line );
 
-                            programs[ progIndex ] = curProgram.ToArray();
+                            programs[ progIndex ] = curProgram;
                             labels[ progIndex ] = curLabels;
 
-                            curProgram.Clear();
+                            curProgram = new List<Token>();
                             curLabels = new Dictionary<string, byte>();
 
                             progIndex = new LiteralToken( split[ 1 ] ).Value;
 
                             if ( split.Length > 2 )
                                 constants.Add( split[ 2 ], progIndex );
+                        }
+                        else if ( split[ 0 ] == ".dat" )
+                        {
+                            for ( int i = 1; i < split.Length; ++i )
+                                curProgram.Add( new LiteralToken( split[ i ] ) );
+                        }
+                        else if ( split[ 0 ] == ".str" )
+                        {
+                            int start = line.IndexOf( '"' ) + 1;
+                            int end = line.IndexOf( '"', start );
+
+                            String str = line.Substring( start, end - start );
+                            foreach ( char ch in str )
+                                curProgram.Add( new LiteralToken( (byte) ch ) );
+
+                            curProgram.Add( new LiteralToken( (byte) 0x00 ) );
                         }
                     }
                     else if ( line[ 0 ] == ':' )
@@ -173,25 +218,25 @@ namespace ASMCellSim
                 }
             }
 
-            programs[ progIndex ] = curProgram.ToArray();
+            programs[ progIndex ] = curProgram;
             labels[ progIndex ] = curLabels;
 
             byte[][] bytes = new byte[ 256 ][];
 
             for( int p = 0; p < 256; ++ p )
             {
-                Token[] program = programs[ p ];
+                List<Token> program = programs[ p ];
                 if ( program != null )
                 {
                     foreach ( KeyValuePair<String, byte> constant in constants )
                         labels[ p ].Add( constant.Key, constant.Value );
 
+                    for ( int t = program.Count - 1; t >= 0; --t )
+                        program[ t ].ResolveValue( program, ref t, labels[ p ] );
+
                     bytes[ p ] = new byte[ 256 ];
-                    for ( int t = 0; t < program.Length; ++t )
-                    {
-                        program[ t ].ResolveValue( program, t, labels[ p ] );
+                    for ( int t = 0; t < program.Count; ++t )
                         bytes[ p ][ t ] = program[ t ].Value;
-                    }
                 }
             }
 

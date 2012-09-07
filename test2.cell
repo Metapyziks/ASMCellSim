@@ -1,6 +1,27 @@
-.prg $00 Test
-	ADD $03 $08
-	POP
-	MUL ADD $03 $08 $02
+.prg $00 HelloWorld
+	POP CALL @Print PUSH @greet
+	OUTC $0a
+	POP CALL @Print PUSH @query
+	OUTC $0a
+	POP CALL @Print PUSH @reply
+	OUTC $0a
+	RTN
+	
+:greet
+.str "Hello World!"
+:query
+.str "How are you?"
+:reply
+.str "Fuck off"
+
+.prg $01 Print
+	COPY $03
+:loop
+		RLOD COPY $03 PEEK
+		JPIF @done EQUL $00 PEEK
+		OUTC 
+		INC
+		JUMP @loop
+:done
 	POP
 	RTN
