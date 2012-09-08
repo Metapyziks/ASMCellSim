@@ -126,7 +126,7 @@ namespace ASMCellSim
             WrapHorz = wrapHorz;
             WrapVert = wrapVert;
 
-            Friction = 0.98f;
+            Friction = 0.9f;
 
             myCols = (int) Math.Ceiling( width / stGridSize );
             myRows = (int) Math.Ceiling( height / stGridSize );
@@ -210,8 +210,8 @@ namespace ASMCellSim
 
             foreach ( Cell cell in displaced )
             {
-                int gc = (int) ( cell.Position.X / stGridSize );
-                int gr = (int) ( cell.Position.Y / stGridSize );
+                int gc = (int) ( cell.Position.X / stGridSize ) % myCols;
+                int gr = (int) ( cell.Position.Y / stGridSize ) % myRows;
                 myCellGrid[ gc, gr ].Add( cell );
             }
         }
