@@ -5,7 +5,7 @@ using System.Text;
 
 namespace ASMCellSim
 {
-    public delegate void InstructionAction( Cell cell, byte[] args );
+    internal delegate void InstructionAction( Cell cell, byte[] args );
 
     public class Instruction
     {
@@ -321,24 +321,25 @@ namespace ASMCellSim
             stToAdd.Clear();
         }
 
-        public static bool Exists( String mnemonic )
+        internal static bool Exists( String mnemonic )
         {
             return stMnemonics.ContainsKey( mnemonic );
         }
 
-        public static Instruction Get( byte id )
+        internal static Instruction Get( byte id )
         {
             return stInstCodes[ id ];
         }
 
-        public static Instruction Get( String mnemonic )
+        internal static Instruction Get( String mnemonic )
         {
             return stMnemonics[ mnemonic ];
         }
 
         public readonly String Mnemonic;
-        public readonly byte ArgCount;
-        public readonly InstructionAction Action;
+
+        internal readonly byte ArgCount;
+        internal readonly InstructionAction Action;
 
         public byte InstructionID { get; private set; }
 

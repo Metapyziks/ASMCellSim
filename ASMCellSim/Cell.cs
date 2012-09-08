@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.IO;
 
 namespace ASMCellSim
 {
@@ -20,7 +21,7 @@ namespace ASMCellSim
 
         public ushort Energy { get; private set; }
 
-        public Processor Processor { get; private set; }
+        internal Processor Processor { get; private set; }
 
         public Cell( Vector2 pos )
         {
@@ -33,7 +34,22 @@ namespace ASMCellSim
             Processor = new Processor();
         }
 
-        public void UseEnergy( ushort amount )
+        public void LoadCode( String filePath )
+        {
+            Processor.LoadCode( Assembler.Assemble( filePath ) );
+        }
+
+        public void LoadCode( Stream stream )
+        {
+            Processor.LoadCode( Assembler.Assemble( stream ) );
+        }
+
+        public void LoadCode( byte[][] bytecode )
+        {
+            Processor.LoadCode( bytecode );
+        }
+
+        internal void UseEnergy( ushort amount )
         {
             if ( Energy > amount )
                 Energy -= amount;
@@ -41,14 +57,14 @@ namespace ASMCellSim
                 Energy = 0;
         }
 
-        public void StepPhysics( World world )
+        internal void StepPhysics( World world )
         {
             Position += Velocity;
             Velocity += Acceleration;
             Acceleration = new Vector2();
         }
 
-        public void Step( World world )
+        internal void Step( World world )
         {
             World.NearbyCellEnumerator iter = new World.NearbyCellEnumerator( world, Position, Radius * 2.0f );
             while ( iter.MoveNext() )

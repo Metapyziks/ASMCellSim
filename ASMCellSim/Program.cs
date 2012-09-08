@@ -12,7 +12,7 @@ namespace ASMCellSim
         {
             if ( args.Length > 0 )
             {
-                byte[][] code = Assembler.Assemble( File.ReadAllText( args[ 0 ] ) );
+                byte[][] code = Assembler.Assemble( args[ 0 ] );
 
                 for ( int i = 0; i < code.Length; ++i )
                     if ( code[ i ] != null )

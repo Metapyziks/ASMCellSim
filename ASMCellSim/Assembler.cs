@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Globalization;
+using System.IO;
 
 namespace ASMCellSim
 {
@@ -10,26 +11,26 @@ namespace ASMCellSim
     {
         private abstract class Token
         {
-            public byte Value { get; protected set; }
-            public abstract bool IsLiteral { get; }
+            internal byte Value { get; set; }
+            internal abstract bool IsLiteral { get; }
 
-            public virtual byte ArgumentCount { get { return 0; } }
+            internal virtual byte ArgumentCount { get { return 0; } }
 
-            public abstract void ResolveValue( List<Token> program, ref int index, Dictionary<String, byte> constants );
+            internal abstract void ResolveValue( List<Token> program, ref int index, Dictionary<String, byte> constants );
         }
 
         private class LiteralToken : Token
         {
             private String myConstName;
 
-            public override bool IsLiteral { get { return true; } }
+            internal override bool IsLiteral { get { return true; } }
 
-            public LiteralToken( byte value )
+            internal LiteralToken( byte value )
             {
                 Value = value;
             }
 
-            public LiteralToken( String literal )
+            internal LiteralToken( String literal )
             {
                 if ( char.IsNumber( literal[ 0 ] ) )
                 {
@@ -58,7 +59,7 @@ namespace ASMCellSim
                     throw new Exception( "Invalid literal: " + literal );
             }
 
-            public override void ResolveValue( List<Token> program, ref int index, Dictionary<string, byte> constants )
+            internal override void ResolveValue( List<Token> program, ref int index, Dictionary<string, byte> constants )
             {
                 if ( myConstName != null )
                 {
@@ -84,12 +85,12 @@ namespace ASMCellSim
 
         private class InstructionToken : Token
         {
-            public override bool IsLiteral { get { return false; } }
+            internal override bool IsLiteral { get { return false; } }
 
-            public Instruction Instruction { get; private set; }
-            public override byte ArgumentCount { get { return Instruction.ArgCount; } }
+            internal Instruction Instruction { get; private set; }
+            internal override byte ArgumentCount { get { return Instruction.ArgCount; } }
 
-            public InstructionToken( String inst )
+            internal InstructionToken( String inst )
             {
                 try
                 {
@@ -101,7 +102,7 @@ namespace ASMCellSim
                 }
             }
 
-            public override void ResolveValue( List<Token> program, ref int index, Dictionary<string, byte> constants )
+            internal override void ResolveValue( List<Token> program, ref int index, Dictionary<string, byte> constants )
             {
                 Value = Instruction.InstructionID;
 
@@ -140,9 +141,20 @@ namespace ASMCellSim
             }
         }
 
-        public static byte[][] Assemble( String asm )
+        public static byte[][] Assemble( String filePath )
         {
-            String[] lines = asm.Split( '\n' );
+            using( FileStream stream = new FileStream( filePath, FileMode.Open, FileAccess.Read ) )
+                return Assemble( stream );
+        }
+
+        public static byte[][] Assemble( Stream stream )
+        {
+            List<String> lineList = new List<string>();
+            StreamReader reader = new StreamReader( stream );
+            while ( !reader.EndOfStream )
+                lineList.Add( reader.ReadLine() );
+
+            String[] lines = lineList.ToArray();
 
             Dictionary<String, byte> constants = new Dictionary<string, byte>();
 
