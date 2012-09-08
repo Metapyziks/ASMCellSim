@@ -9,8 +9,9 @@ namespace ASMCellSim
     public class Cell
     {
         public const float Radius = 1.0f;
-        public const float Diam2 = ( Radius * 2 ) * ( Radius * 2 );
-        public const float RepulsionMultiplier = 0.5f;
+        public const float RepulsionMultiplier = 0.5f / 128.0f;
+
+        private const float stDiam2 = ( Radius * 2 ) * ( Radius * 2 );
 
         public const ushort StartingEnergy = 4096;
         public const ushort ReproduceEnergy = 8192;
@@ -23,7 +24,7 @@ namespace ASMCellSim
 
         internal Processor Processor { get; private set; }
 
-        public Cell( Vector2 pos )
+        internal Cell( Vector2 pos )
         {
             Position = pos;
             Velocity = new Vector2();
@@ -59,8 +60,9 @@ namespace ASMCellSim
 
         internal void StepPhysics( World world )
         {
-            Position += Velocity;
+            Position = world.Wrap( Position + Velocity );
             Velocity += Acceleration;
+            Velocity *= world.Friction;
             Acceleration = new Vector2();
         }
 
@@ -74,7 +76,7 @@ namespace ASMCellSim
                 {
                     Vector2 diff = world.Difference( Position, cur.Position );
                     float dist2 = world.Difference( Position, cur.Position ).Length2;
-                    if ( dist2 < Diam2 )
+                    if ( dist2 < stDiam2 )
                         Acceleration -= diff * RepulsionMultiplier / dist2;
                 }
             }
