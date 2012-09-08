@@ -5,7 +5,7 @@ using System.Text;
 
 namespace ASMCellSim
 {
-    internal struct Vector2
+    public struct Vector2
     {
         public static Vector2 operator +( Vector2 vec0, Vector2 vec1 )
         {
@@ -32,20 +32,20 @@ namespace ASMCellSim
             return new Vector2( vec.X / scalar, vec.Y / scalar );
         }
 
-        internal float X;
-        internal float Y;
+        public float X;
+        public float Y;
 
-        internal float Length
+        public float Length
         {
             get { return (float) Math.Sqrt( X * X + Y * Y ); }
         }
 
-        internal float Length2
+        public float Length2
         {
             get { return X * X + Y * Y; }
         }
 
-        internal Vector2 Normal
+        public Vector2 Normal
         {
             get
             {
@@ -54,7 +54,7 @@ namespace ASMCellSim
             }
         }
 
-        internal Vector2( float x, float y )
+        public Vector2( float x, float y )
         {
             X = x;
             Y = y;

@@ -5,9 +5,9 @@ using System.Text;
 
 namespace ASMCellSim
 {
-    internal class World
+    public class World
     {
-        internal class NearbyCellEnumerator : IEnumerator<Cell>
+        public class NearbyCellEnumerator : IEnumerator<Cell>
         {
             private readonly int myMinX;
             private readonly int myMinY;
@@ -19,11 +19,11 @@ namespace ASMCellSim
             private int myY;
             private int myI;
 
-            internal readonly World World;
-            internal readonly Vector2 Location;
-            internal readonly float Radius;
+            public readonly World World;
+            public readonly Vector2 Location;
+            public readonly float Radius;
 
-            internal NearbyCellEnumerator( World world, Vector2 location, float radius )
+            public NearbyCellEnumerator( World world, Vector2 location, float radius )
             {
                 World = world;
 
@@ -99,16 +99,16 @@ namespace ASMCellSim
         private readonly float myHalfWidth;
         private readonly float myHalfHeight;
 
-        internal readonly float Width;
-        internal readonly float Height;
+        public readonly float Width;
+        public readonly float Height;
 
-        internal readonly bool WrapHorz;
-        internal readonly bool WrapVert;
+        public readonly bool WrapHorz;
+        public readonly bool WrapVert;
 
-        internal World( float size, bool wrap = true )
+        public World( float size, bool wrap = true )
             : this( size, size, wrap, wrap ) { }
 
-        internal World( float width, float height, bool wrapHorz = true, bool wrapVert = true )
+        public World( float width, float height, bool wrapHorz = true, bool wrapVert = true )
         {
             Width = width;
             Height = height;
@@ -129,14 +129,14 @@ namespace ASMCellSim
                     myCellGrid[ c, r ] = new List<Cell>();
         }
 
-        internal void Clear()
+        public void Clear()
         {
             for ( int c = 0; c < myCols; ++c )
                 for ( int r = 0; r < myRows; ++r )
                     myCellGrid[ c, r ].Clear();
         }
 
-        internal Vector2 Difference( Vector2 vec0, Vector2 vec1 )
+        public Vector2 Difference( Vector2 vec0, Vector2 vec1 )
         {
             Vector2 res = vec1 - vec0;
             if ( WrapHorz )
@@ -154,6 +154,19 @@ namespace ASMCellSim
                     res.Y += Height;
             }
             return res;
+        }
+
+        public void Step()
+        {
+            for ( int c = 0; c < myCols; ++c )
+                for ( int r = 0; r < myRows; ++r )
+                    foreach ( Cell cell in myCellGrid[ c, r ] )
+                        cell.Step( this );
+
+            for ( int c = 0; c < myCols; ++c )
+                for ( int r = 0; r < myRows; ++r )
+                    foreach ( Cell cell in myCellGrid[ c, r ] )
+                        cell.StepPhysics( this );
         }
     }
 }

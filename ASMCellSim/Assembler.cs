@@ -6,30 +6,30 @@ using System.Globalization;
 
 namespace ASMCellSim
 {
-    internal static class Assembler
+    public static class Assembler
     {
         private abstract class Token
         {
-            internal byte Value { get; set; }
-            internal abstract bool IsLiteral { get; }
+            public byte Value { get; protected set; }
+            public abstract bool IsLiteral { get; }
 
-            internal virtual byte ArgumentCount { get { return 0; } }
+            public virtual byte ArgumentCount { get { return 0; } }
 
-            internal abstract void ResolveValue( List<Token> program, ref int index, Dictionary<String, byte> constants );
+            public abstract void ResolveValue( List<Token> program, ref int index, Dictionary<String, byte> constants );
         }
 
         private class LiteralToken : Token
         {
             private String myConstName;
 
-            internal override bool IsLiteral { get { return true; } }
+            public override bool IsLiteral { get { return true; } }
 
-            internal LiteralToken( byte value )
+            public LiteralToken( byte value )
             {
                 Value = value;
             }
 
-            internal LiteralToken( String literal )
+            public LiteralToken( String literal )
             {
                 if ( char.IsNumber( literal[ 0 ] ) )
                 {
@@ -58,7 +58,7 @@ namespace ASMCellSim
                     throw new Exception( "Invalid literal: " + literal );
             }
 
-            internal override void ResolveValue( List<Token> program, ref int index, Dictionary<string, byte> constants )
+            public override void ResolveValue( List<Token> program, ref int index, Dictionary<string, byte> constants )
             {
                 if ( myConstName != null )
                 {
@@ -84,12 +84,12 @@ namespace ASMCellSim
 
         private class InstructionToken : Token
         {
-            internal override bool IsLiteral { get { return false; } }
+            public override bool IsLiteral { get { return false; } }
 
-            internal Instruction Instruction { get; private set; }
-            internal override byte ArgumentCount { get { return Instruction.ArgCount; } }
+            public Instruction Instruction { get; private set; }
+            public override byte ArgumentCount { get { return Instruction.ArgCount; } }
 
-            internal InstructionToken( String inst )
+            public InstructionToken( String inst )
             {
                 try
                 {
@@ -101,7 +101,7 @@ namespace ASMCellSim
                 }
             }
 
-            internal override void ResolveValue( List<Token> program, ref int index, Dictionary<string, byte> constants )
+            public override void ResolveValue( List<Token> program, ref int index, Dictionary<string, byte> constants )
             {
                 Value = Instruction.InstructionID;
 
@@ -140,7 +140,7 @@ namespace ASMCellSim
             }
         }
 
-        internal static byte[][] Assemble( String asm )
+        public static byte[][] Assemble( String asm )
         {
             String[] lines = asm.Split( '\n' );
 

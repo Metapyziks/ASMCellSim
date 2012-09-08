@@ -5,9 +5,9 @@ using System.Text;
 
 namespace ASMCellSim
 {
-    internal class Processor
+    public class Processor
     {
-        internal const int StackSize = 256;
+        public const int StackSize = 256;
 
         private byte[] myStackMemory;
 
@@ -18,19 +18,19 @@ namespace ASMCellSim
 
         private bool myPCOverflow;
 
-        internal byte[][] Memory { get; private set; }
+        public byte[][] Memory { get; private set; }
 
-        internal byte[] CurrentProgram
+        public byte[] CurrentProgram
         {
             get { return Memory[ myPI ]; }
         }
 
-        internal bool EndOfProgram
+        public bool EndOfProgram
         {
             get { return CurrentProgram == null || myPCOverflow; }
         }
 
-        internal Processor()
+        public Processor()
         {
             Memory = new byte[ 256 ][];
 
@@ -44,7 +44,7 @@ namespace ASMCellSim
             mySM = 0;
         }
 
-        internal void LoadCode( byte[][] code )
+        public void LoadCode( byte[][] code )
         {
             Memory = code;
             myPI = 0;
@@ -52,7 +52,7 @@ namespace ASMCellSim
             myPCOverflow = code[ 0 ] == null;
         }
 
-        internal byte ReadByte()
+        public byte ReadByte()
         {
             if ( !EndOfProgram )
             {
@@ -65,13 +65,13 @@ namespace ASMCellSim
             return 0x00;
         }
 
-        internal void Jump( byte index )
+        public void Jump( byte index )
         {
             myPC = index;
             myPCOverflow = false;
         }
 
-        internal void Call( byte programIndex )
+        public void Call( byte programIndex )
         {
             Push( myPC );
             Push( myPI );
@@ -82,7 +82,7 @@ namespace ASMCellSim
             Jump( 0 );
         }
 
-        internal void Return()
+        public void Return()
         {
             if ( mySM == 0 )
                 myPCOverflow = true;
@@ -95,12 +95,12 @@ namespace ASMCellSim
             }
         }
 
-        internal void Push( byte value )
+        public void Push( byte value )
         {
             myStackMemory[ mySP++ ] = value;
         }
 
-        internal byte Pop()
+        public byte Pop()
         {
             --mySP;
             if ( mySP == 255 || mySP < mySM )
@@ -112,7 +112,7 @@ namespace ASMCellSim
             return myStackMemory[ mySP ];
         }
 
-        internal byte Peek( int offset )
+        public byte Peek( int offset )
         {
             if ( mySP > offset )
                 return myStackMemory[ mySP - offset - 1 ];
@@ -120,17 +120,17 @@ namespace ASMCellSim
                 return 0x00;
         }
 
-        internal void LocalStore( byte index, byte value )
+        public void LocalStore( byte index, byte value )
         {
             RemoteStore( myPI, index, value );
         }
 
-        internal byte LocalLoad( byte index )
+        public byte LocalLoad( byte index )
         {
             return RemoteLoad( myPI, index );
         }
 
-        internal void RemoteStore( byte pindex, byte index, byte value )
+        public void RemoteStore( byte pindex, byte index, byte value )
         {
             if ( Memory[ pindex ] == null )
                 Memory[ pindex ] = new byte[ 256 ];
@@ -138,7 +138,7 @@ namespace ASMCellSim
             Memory[ pindex ][ index ] = value;
         }
 
-        internal byte RemoteLoad( byte pindex, byte index )
+        public byte RemoteLoad( byte pindex, byte index )
         {
             if ( Memory[ pindex ] == null )
                 return 0x00;
@@ -147,7 +147,7 @@ namespace ASMCellSim
         }
 
         private static byte[] stArgs = new byte[ 4 ];
-        internal void Step( Cell cell )
+        public void Step( Cell cell )
         {
             if ( !EndOfProgram )
             {

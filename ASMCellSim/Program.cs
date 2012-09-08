@@ -6,9 +6,9 @@ using System.IO;
 
 namespace ASMCellSim
 {
-    internal class Program
+    public class Program
     {
-        internal static void Main( string[] args )
+        public static void Main( string[] args )
         {
             if ( args.Length > 0 )
             {
@@ -18,11 +18,7 @@ namespace ASMCellSim
                     if ( code[ i ] != null )
                         File.WriteAllBytes( Path.GetFileNameWithoutExtension( args[ 0 ] ) + "." + i + ".cellprg", code[ i ] );
 
-                Cell cell = new Cell( new Vector2() );
-                cell.Processor.LoadCode( code );
-
-                while ( !cell.Processor.EndOfProgram )
-                    cell.Processor.Step( cell );
+                World world = new World( 256.0f, true );
 
                 Console.ReadKey();
             }

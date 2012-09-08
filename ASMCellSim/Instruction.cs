@@ -5,9 +5,9 @@ using System.Text;
 
 namespace ASMCellSim
 {
-    internal delegate void InstructionAction( Cell cell, byte[] args );
+    public delegate void InstructionAction( Cell cell, byte[] args );
 
-    internal class Instruction
+    public class Instruction
     {
         private static List<Instruction> stToAdd = new List<Instruction>();
         private static Instruction[] stInstCodes = new Instruction[ 256 ];
@@ -321,26 +321,26 @@ namespace ASMCellSim
             stToAdd.Clear();
         }
 
-        internal static bool Exists( String mnemonic )
+        public static bool Exists( String mnemonic )
         {
             return stMnemonics.ContainsKey( mnemonic );
         }
 
-        internal static Instruction Get( byte id )
+        public static Instruction Get( byte id )
         {
             return stInstCodes[ id ];
         }
 
-        internal static Instruction Get( String mnemonic )
+        public static Instruction Get( String mnemonic )
         {
             return stMnemonics[ mnemonic ];
         }
 
-        internal readonly String Mnemonic;
-        internal readonly byte ArgCount;
-        internal readonly InstructionAction Action;
+        public readonly String Mnemonic;
+        public readonly byte ArgCount;
+        public readonly InstructionAction Action;
 
-        internal byte InstructionID { get; private set; }
+        public byte InstructionID { get; private set; }
 
         private Instruction( String mnemonic, byte argCount, InstructionAction action )
         {

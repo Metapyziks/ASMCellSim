@@ -5,22 +5,22 @@ using System.Text;
 
 namespace ASMCellSim
 {
-    internal class Cell
+    public class Cell
     {
-        internal const float Radius = 1.0f;
-        internal const float Diam2 = ( Radius * 2 ) * ( Radius * 2 );
-        internal const float RepulsionMultiplier = 0.5f;
+        public const float Radius = 1.0f;
+        public const float Diam2 = ( Radius * 2 ) * ( Radius * 2 );
+        public const float RepulsionMultiplier = 0.5f;
 
-        internal const ushort StartingEnergy = 4096;
-        internal const ushort ReproduceEnergy = 8192;
+        public const ushort StartingEnergy = 4096;
+        public const ushort ReproduceEnergy = 8192;
 
-        internal Vector2 Position { get; private set; }
-        internal Vector2 Velocity { get; private set; }
-        internal Vector2 Acceleration { get; private set; }
+        public Vector2 Position { get; private set; }
+        public Vector2 Velocity { get; private set; }
+        public Vector2 Acceleration { get; private set; }
 
-        internal ushort Energy { get; private set; }
+        public ushort Energy { get; private set; }
 
-        internal Processor Processor { get; private set; }
+        public Processor Processor { get; private set; }
 
         public Cell( Vector2 pos )
         {
@@ -33,7 +33,7 @@ namespace ASMCellSim
             Processor = new Processor();
         }
 
-        internal void UseEnergy( ushort amount )
+        public void UseEnergy( ushort amount )
         {
             if ( Energy > amount )
                 Energy -= amount;
@@ -41,14 +41,14 @@ namespace ASMCellSim
                 Energy = 0;
         }
 
-        internal void StepPhysics( World world )
+        public void StepPhysics( World world )
         {
             Position += Velocity;
             Velocity += Acceleration;
             Acceleration = new Vector2();
         }
 
-        internal void Step( World world )
+        public void Step( World world )
         {
             World.NearbyCellEnumerator iter = new World.NearbyCellEnumerator( world, Position, Radius * 2.0f );
             while ( iter.MoveNext() )
