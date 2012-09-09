@@ -47,7 +47,7 @@ namespace ASMCellSim
 
         public const float Radius = 1.0f;
         public const float RepulsionMultiplier = 1.0f / 64.0f;
-        public const float BondMultiplier = 1.0f / 64.0f;
+        public const float BondMultiplier = 1.0f / 2.0f;
 
         private const float stDiam2 = ( Radius * 2 ) * ( Radius * 2 );
 
@@ -173,22 +173,6 @@ namespace ASMCellSim
         {
             myPosJump = Position;
 
-            World.NearbyCellEnumerator iter = new World.NearbyCellEnumerator( world, Position, Radius * 2.0f );
-            while ( iter.MoveNext() )
-            {
-                Cell cur = iter.Current;
-                if ( cur != this )
-                {
-                    Vector2 diff = world.Difference( myPosJump, cur.Position );
-                    float dist2 = diff.Length2;
-                    if ( dist2 < stDiam2 && dist2 > 0f )
-                    {
-                        Vector2 dest = cur.Position - diff.Normal * Radius * 2f;
-                        myPosJump += world.Difference( myPosJump, dest ) * world.Friction;
-                    }
-                }
-            }
-
             for ( int i = 0; i < 6; ++i )
             {
                 if ( Attachments[ i ] != null )
@@ -199,18 +183,35 @@ namespace ASMCellSim
                     Vector2 dest = cell.Position;
                     dest.X += (float) Math.Cos( angle ) * Radius * 2f;
                     dest.Y += (float) Math.Sin( angle ) * Radius * 2f;
-                    myPosJump += world.Difference( myPosJump, dest ) * world.Friction;
-                    Vector2 diff = world.Difference( myPosJump, cell.Position );
+                    Velocity += world.Difference( Position, dest ) * BondMultiplier;
+                    // myPosJump += world.Difference( Position, dest ) / 2f * world.Friction;
+                    Vector2 diff = world.Difference( Position, cell.Position );
                     angle = (float) Math.Atan2( diff.Y, diff.X ) - i * (float) Math.PI / 3f;
-                    Rotation = angle;
-                    /*
                     float angDiff = angle - Rotation;
                     if ( angDiff > Math.PI )
                         angDiff -= (float) ( Math.PI * 2.0 );
                     else if ( angDiff < -Math.PI )
                         angDiff += (float) ( Math.PI * 2.0 );
                     RotSpeed += angDiff * BondMultiplier;
-                    */
+                }
+            }
+
+            Vector2 newPos = myPosJump;
+
+            World.NearbyCellEnumerator iter = new World.NearbyCellEnumerator( world, newPos, Radius * 2.0f );
+            while ( iter.MoveNext() )
+            {
+                Cell cur = iter.Current;
+                if ( cur != this )
+                {
+                    Vector2 diff = world.Difference( newPos, cur.Position );
+                    float dist2 = diff.Length2;
+                    if ( dist2 < stDiam2 && dist2 > 0f )
+                    {
+                        Vector2 dest = cur.Position - diff.Normal * Radius * 2f;
+                        // Velocity += world.Difference( newPos, dest ) * RepulsionMultiplier;
+                        myPosJump += world.Difference( newPos, dest ) / 2f * world.Friction;
+                    }
                 }
             }
 

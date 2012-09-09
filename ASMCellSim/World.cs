@@ -126,7 +126,7 @@ namespace ASMCellSim
             WrapHorz = wrapHorz;
             WrapVert = wrapVert;
 
-            Friction = 0.9f;
+            Friction = 0.8f;
 
             myCols = (int) Math.Ceiling( width / stGridSize );
             myRows = (int) Math.Ceiling( height / stGridSize );

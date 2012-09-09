@@ -36,22 +36,32 @@ namespace ASMCellSim.Visualizer
         {
             myWorld = new World( 256f, true );
             myCamPos = new Vector2( 128f, 128f );
-            myCamScale = 16.0f;
+            myCamScale = 4.0f;
 
             myUpdatePeriod = 1f / 60f;
 
             myTimer = new Stopwatch();
 
-            Cell[] cells = new Cell[ 16 ];
-            for ( int i = 0; i < 16; ++i )
+            Random rand = new Random();
+
+            for ( int g = 0; g < 64; ++g )
             {
-                cells[ i ] = myWorld.AddCell( new Vector2( 128f + i, 128f ) );
+                int chainLength = rand.Next( 4, 17 );
+                Cell[] cells = new Cell[ chainLength ];
+                for ( int i = 0; i < chainLength; ++i )
+                {
+                    Vector2 start = new Vector2( (float) rand.NextDouble() * myWorld.Width, (float) rand.NextDouble() * myWorld.Height );
+                    float ang = (float) ( rand.NextDouble() * Math.PI * 2.0 );
+                    Vector2 add = new Vector2( (float) Math.Cos( ang ), (float) Math.Sin( ang ) ) * Cell.Radius * 2f;
 
-                if ( i > 0 )
-                    cells[ i ].Attach( cells[ i - 1 ], Hectant.Back, Hectant.Front );
+                    cells[ i ] = myWorld.AddCell( start + add * i );
+
+                    if ( i > 0 )
+                        cells[ i ].Attach( cells[ i - 1 ], Hectant.Front, Hectant.Back );
+                }
+
+                myDraggedCell = cells[ 0 ];
             }
-
-            myDraggedCell = cells[ 0 ];
         }
 
         protected override void OnLoad( EventArgs e )
