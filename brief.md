@@ -14,7 +14,7 @@ structures to emerge. A visualisation of the simulation will also be produced
 to provide an insight into the configurations of the emerging organisms and
 their behaviours.
 
-## Aims
+## Goals
 ### Simulation
 A program will be produced to simulate a collection of simple cells existing on
 a Cartesian plane. Each cell requires the absorption of nutrients from its
@@ -39,4 +39,17 @@ Software designed to visually represent the organisms and their environment
 will be produced. The world will be displayed in two dimensions, with the
 positions of individual cells visible. Cells may be selected to observe their
 properties, such as current nutrient levels, their genetic code, and what part
-of their code is currently being executed.
+of their code is currently being executed. The interface will be designed to be
+as accessible as possible to allow for the usage of the application in
+education, but also allow for a wide range of modifications to the simulated
+environment.
+
+## Implementation
+The software will be implemented in the C# programming language. This project
+will extend and improve a previous body of work started in September 2012 and
+postponed shortly after due to a lack of available time and additional research
+needed relating to simulating rigid body physical interactions. The existing
+solution includes a full implementation of the virtual machine that executes
+the genetic code of each cell, although the instruction set used will almost
+certainly be altered, and the simulation itself redesigned to support multi-
+threading.
