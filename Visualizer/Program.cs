@@ -20,7 +20,7 @@ namespace ASMCellSim.Visualizer
         }
 
         private World myWorld;
-        private Vector2 myCamPos;
+        private OpenTK.Vector2 myCamPos;
         private float myCamScale;
 
         private Cell myDraggedCell;
@@ -35,7 +35,7 @@ namespace ASMCellSim.Visualizer
             : base( 800, 600, new GraphicsMode( new ColorFormat( 8, 8, 8, 0 ), 0, 0, 4 ), "ASMCellSim Visualizer" )
         {
             myWorld = new World( 256f, true );
-            myCamPos = new Vector2( 128f, 128f );
+            myCamPos = new OpenTK.Vector2( 128f, 128f );
             myCamScale = 4.0f;
 
             myUpdatePeriod = 1f / 60f;
@@ -47,14 +47,13 @@ namespace ASMCellSim.Visualizer
             for ( int g = 0; g < 64; ++g )
             {
                 int chainLength = rand.Next( 4, 17 );
+                Vector2 start = new Vector2( (float) rand.NextDouble() * myWorld.Width, (float) rand.NextDouble() * myWorld.Height );
+                float ang = (float) ( rand.NextDouble() * Math.PI * 2.0 );
+                Vector2 add = new Vector2( (float) Math.Cos( ang ), (float) Math.Sin( ang ) ) * Cell.Radius * 2f;
                 Cell[] cells = new Cell[ chainLength ];
                 for ( int i = 0; i < chainLength; ++i )
                 {
-                    Vector2 start = new Vector2( (float) rand.NextDouble() * myWorld.Width, (float) rand.NextDouble() * myWorld.Height );
-                    float ang = (float) ( rand.NextDouble() * Math.PI * 2.0 );
-                    Vector2 add = new Vector2( (float) Math.Cos( ang ), (float) Math.Sin( ang ) ) * Cell.Radius * 2f;
-
-                    cells[ i ] = myWorld.AddCell( start + add * i );
+                    cells[ i ] = myWorld.AddCell( start + add * i + new Vector2( rand.NextDouble() - 0.5, rand.NextDouble() - 0.5 ) );
 
                     if ( i > 0 )
                         cells[ i ].Attach( cells[ i - 1 ], Hectant.Front, Hectant.Back );
@@ -79,7 +78,7 @@ namespace ASMCellSim.Visualizer
         {
             if ( myTimer.Elapsed.TotalSeconds >= myUpdatePeriod )
             {
-                myWorld.Step();
+                myWorld.Step( myUpdatePeriod );
                 myTimer.Restart();
 
                 if ( myDraggedCell != null && Mouse[ OpenTK.Input.MouseButton.Left ] )
@@ -105,9 +104,9 @@ namespace ASMCellSim.Visualizer
             while ( iter.MoveNext() )
             {
                 Cell cell = iter.Current;
-                myCellSprite.X = ( cell.Position.X - myCamPos.X ) * myCamScale + Width / 2f;
-                myCellSprite.Y = ( cell.Position.Y - myCamPos.Y ) * myCamScale + Height / 2f;
-                myCellSprite.Rotation = cell.Rotation + MathHelper.PiOver2;
+                myCellSprite.X = ( (float) cell.Position.X - myCamPos.X ) * myCamScale + Width / 2f;
+                myCellSprite.Y = ( (float) cell.Position.Y - myCamPos.Y ) * myCamScale + Height / 2f;
+                myCellSprite.Rotation = (float) cell.Rotation + MathHelper.PiOver2;
                 myCellSprite.Render( mySpriteShader );
             }
             mySpriteShader.End();

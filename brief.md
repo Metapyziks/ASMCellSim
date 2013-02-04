@@ -26,16 +26,17 @@ cells, and reproduction through cell division. These interactions should be
 able to support a large range of possible emergent behaviours, including
 predatory, symbiotic and parasitic relationships between organisms.
 
-#### Evolutionary Simulation
-It will be possible to introduce the possibility of mutation during cellular
-division, which will allow the simulation of natural selection.
-
-#### Simulation of Prefabricated Organisms
-There will also be the possibility to initiate a simulation with a collection
-of pre-designed organisms. The genetic code for these organisms would be
-produced through assembling programs written in a simple programming language.
-This could be branched into an educational programming game where players
-attempt to implement organisms to compete against those designed by opponents.
+There will be the ability to introduce the possibility of mutation during
+cellular division, which will allow the emulation of natural selection. There
+will also be the possibility of initiating a simulation with a collection of
+pre-designed organisms. The genetic code for these organisms would be produced
+through assembling programs written in a simple programming language. This
+could be branched into an educational programming game where players attempt to
+implement organisms to compete against those designed by opponents.
 
 ### Visualisation
-...
+Software designed to visually represent the organisms and their environment 
+will be produced. The world will be displayed in two dimensions, with the
+positions of individual cells visible. Cells may be selected to observe their
+properties, such as current nutrient levels, their genetic code, and what part
+of their code is currently being executed.

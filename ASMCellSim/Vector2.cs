@@ -17,30 +17,30 @@ namespace ASMCellSim
             return new Vector2( vec0.X - vec1.X, vec0.Y - vec1.Y );
         }
 
-        public static Vector2 operator *( Vector2 vec, float scalar )
+        public static Vector2 operator *( Vector2 vec, double scalar )
         {
             return new Vector2( vec.X * scalar, vec.Y * scalar );
         }
 
-        public static float operator *( Vector2 vec0, Vector2 vec1 )
+        public static double operator *( Vector2 vec0, Vector2 vec1 )
         {
             return vec0.X * vec1.X + vec0.Y * vec1.Y;
         }
 
-        public static Vector2 operator /( Vector2 vec, float scalar )
+        public static Vector2 operator /( Vector2 vec, double scalar )
         {
             return new Vector2( vec.X / scalar, vec.Y / scalar );
         }
 
-        public float X;
-        public float Y;
+        public double X;
+        public double Y;
 
-        public float Length
+        public double Length
         {
-            get { return (float) Math.Sqrt( X * X + Y * Y ); }
+            get { return (double) Math.Sqrt( X * X + Y * Y ); }
         }
 
-        public float Length2
+        public double Length2
         {
             get { return X * X + Y * Y; }
         }
@@ -49,12 +49,12 @@ namespace ASMCellSim
         {
             get
             {
-                float length = Length;
+                double length = Length;
                 return new Vector2( X / length, Y / length );
             }
         }
 
-        public Vector2( float x, float y )
+        public Vector2( double x, double y )
         {
             X = x;
             Y = y;

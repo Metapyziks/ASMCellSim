@@ -21,9 +21,9 @@ namespace ASMCellSim
 
             public readonly World World;
             public readonly Vector2 Location;
-            public readonly float Radius;
+            public readonly double Radius;
 
-            public NearbyCellEnumerator( World world, float minX, float minY, float width, float height )
+            public NearbyCellEnumerator( World world, double minX, double minY, double width, double height )
             {
                 World = world;
                 Radius = 0f;
@@ -41,8 +41,8 @@ namespace ASMCellSim
                 myMaxY -= (int) Math.Floor( (double) myMaxY / World.myRows ) * World.myRows;
             }
 
-            public NearbyCellEnumerator( World world, Vector2 location, float radius )
-                : this( world, location.X - radius, location.Y - radius, radius * 2f, radius * 2f )
+            public NearbyCellEnumerator( World world, Vector2 location, double radius )
+                : this( world, location.X - radius, location.Y - radius, radius * 2.0, radius * 2.0 )
             {
                 Location = location;
                 Radius = radius;
@@ -95,27 +95,27 @@ namespace ASMCellSim
             }
         }
 
-        private const float stGridSize = 2.0f;
+        private const double stGridSize = 2.0;
 
         private readonly int myCols;
         private readonly int myRows;
         private List<Cell>[,] myCellGrid;
 
-        private readonly float myHalfWidth;
-        private readonly float myHalfHeight;
+        private readonly double myHalfWidth;
+        private readonly double myHalfHeight;
 
-        public readonly float Width;
-        public readonly float Height;
+        public readonly double Width;
+        public readonly double Height;
 
         public readonly bool WrapHorz;
         public readonly bool WrapVert;
 
-        public float Friction;
+        public double Friction;
 
-        public World( float size, bool wrap = true )
+        public World( double size, bool wrap = true )
             : this( size, size, wrap, wrap ) { }
 
-        public World( float width, float height, bool wrapHorz = true, bool wrapVert = true )
+        public World( double width, double height, bool wrapHorz = true, bool wrapVert = true )
         {
             Width = width;
             Height = height;
@@ -126,7 +126,7 @@ namespace ASMCellSim
             WrapHorz = wrapHorz;
             WrapVert = wrapVert;
 
-            Friction = 0.8f;
+            Friction = 0.95;
 
             myCols = (int) Math.Ceiling( width / stGridSize );
             myRows = (int) Math.Ceiling( height / stGridSize );
@@ -180,12 +180,12 @@ namespace ASMCellSim
             return vec;
         }
 
-        public void Step()
+        public void Step( double dt )
         {
             for ( int c = 0; c < myCols; ++c )
                 for ( int r = 0; r < myRows; ++r )
                     foreach ( Cell cell in myCellGrid[ c, r ] )
-                        cell.Step( this );
+                        cell.Step( this, dt );
 
             List<Cell> displaced = new List<Cell>();
 
@@ -196,7 +196,7 @@ namespace ASMCellSim
                     for ( int i = myCellGrid[ c, r ].Count - 1; i >= 0; --i )
                     {
                         Cell cell = myCellGrid[ c, r ][ i ];
-                        cell.StepPhysics( this );
+                        cell.StepPhysics( this, dt );
                         int gc = (int) ( cell.Position.X / stGridSize );
                         int gr = (int) ( cell.Position.Y / stGridSize );
                         if ( gc != c || gr != r )
@@ -210,8 +210,12 @@ namespace ASMCellSim
 
             foreach ( Cell cell in displaced )
             {
-                int gc = (int) ( cell.Position.X / stGridSize ) % myCols;
-                int gr = (int) ( cell.Position.Y / stGridSize ) % myRows;
+                int gc = (int) ( cell.Position.X / stGridSize );
+                int gr = (int) ( cell.Position.Y / stGridSize );
+
+                gc -= (int) Math.Floor( (double) gc / myCols ) * myCols;
+                gr -= (int) Math.Floor( (double) gr / myRows ) * myRows;
+
                 myCellGrid[ gc, gr ].Add( cell );
             }
         }
