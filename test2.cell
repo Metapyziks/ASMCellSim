@@ -1,19 +1,11 @@
 .prg $00 HelloWorld
 	POP CALL @Print PUSH @greet
 	OUTC $0a
-	POP CALL @Print PUSH @query
-	OUTC $0a
-	POP CALL @Print PUSH @reply
-	OUTC $0a
 	RTN
 
 .org $80
 :greet
 .str "Hello World!"
-:query
-.str "How are you?"
-:reply
-.str "Fuck off"
 
 .prg $01 Print
 	COPY $03
